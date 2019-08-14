@@ -16,8 +16,8 @@ var (
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 
-	PageSize  int
-	JwtSecret string
+	PageSize    int
+	IdentityKey string
 )
 
 func init() {
@@ -55,6 +55,6 @@ func LoadApp() {
 		log.Fatalf("Fail to get section 'app': %v", err)
 	}
 
-	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
+	IdentityKey = sec.Key("IDENTITY_KEY").MustString("!@)*#)!@U#@*!@!)")
 	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
 }

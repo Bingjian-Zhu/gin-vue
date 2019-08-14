@@ -8,9 +8,8 @@ type Auth struct {
 
 // User demo
 type User struct {
-	UserName  string
-	FirstName string
-	LastName  string
+	UserName   string
+	UserClaims []Claims
 }
 
 func CheckAuth(username, password string) bool {
@@ -22,3 +21,9 @@ func CheckAuth(username, password string) bool {
 
 	return false
 }
+
+// func GetUserID(username string) int {
+// 	var auth Auth
+// 	db.Select("id").Where(Auth{Username: username}).First(&auth)
+// 	return auth.ID
+// }

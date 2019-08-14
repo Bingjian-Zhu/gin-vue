@@ -1,37 +1,48 @@
 package myjwt
 
 import (
-	"gin-blog/models"
-	"gin-blog/pkg/e"
-	"gin-blog/pkg/setting"
+	"encoding/json"
 	"log"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
+
+	"gin-blog/models"
+	"gin-blog/pkg/e"
+	"gin-blog/pkg/setting"
 )
 
-var identityKey = setting.JwtSecret
+var identityKey = setting.IdentityKey
 
-func GinJWTMiddlewareInit() (authMiddleware *jwt.GinJWTMiddleware) {
+type JwtAuthorizator func(data interface{}, c *gin.Context) bool
+
+func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.GinJWTMiddleware) {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"),
-		Timeout:     time.Hour,
+		Timeout:     time.Minute * 15,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.User); ok {
+				v.UserClaims = models.GetUserClaims(v.UserName)
+				jsonClaim, _ := json.Marshal(v.UserClaims)
 				return jwt.MapClaims{
-					identityKey: v.UserName,
+					"userName":   v.UserName,
+					"userClaims": string(jsonClaim),
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
+			jsonClaim := claims["userClaims"].(string)
+			var userClaims []models.Claims
+			json.Unmarshal([]byte(jsonClaim), &userClaims)
 			return &models.User{
-				UserName: claims["id"].(string),
+				UserName:   claims["userName"].(string),
+				UserClaims: userClaims,
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -44,28 +55,13 @@ func GinJWTMiddlewareInit() (authMiddleware *jwt.GinJWTMiddleware) {
 
 			if models.CheckAuth(userID, password) {
 				return &models.User{
-					UserName:  userID,
-					LastName:  "Bingjian",
-					FirstName: "Zhu",
+					UserName: userID,
 				}, nil
 			}
-			// if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
-			// 	return &models.User{
-			// 		UserName:  userID,
-			// 		LastName:  "Bo-Yi",
-			// 		FirstName: "Wu",
-			// 	}, nil
-			// }
 
 			return nil, jwt.ErrFailedAuthentication
 		},
-		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*models.User); ok && v.UserName == "admin" {
-				return true
-			}
-
-			return false
-		},
+		Authorizator: jwtAuthorizator,
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{
 				"code":    code,
@@ -95,6 +91,26 @@ func GinJWTMiddlewareInit() (authMiddleware *jwt.GinJWTMiddleware) {
 		log.Fatal("JWT Error:" + err.Error())
 	}
 	return
+}
+
+func AdminAuthorizator(data interface{}, c *gin.Context) bool {
+	if v, ok := data.(*models.User); ok {
+		for _, itemClaim := range v.UserClaims {
+			if (itemClaim.Type == "role") && (itemClaim.Value == "admin" || itemClaim.Value == "test") {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func TestAuthorizator(data interface{}, c *gin.Context) bool {
+	if v, ok := data.(*models.User); ok && v.UserName == "test" {
+		return true
+	}
+
+	return false
 }
 
 func NoRouteHandler(c *gin.Context) {
