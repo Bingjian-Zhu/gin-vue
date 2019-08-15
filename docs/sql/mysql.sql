@@ -27,8 +27,8 @@ CREATE TABLE `blog_article` (
   `created_by` varchar(100) DEFAULT '' COMMENT '创建人',
   `modified_on` int(10) unsigned DEFAULT '0' COMMENT '修改时间',
   `modified_by` varchar(255) DEFAULT '' COMMENT '修改人',
-  `deleted_on` int(10) unsigned DEFAULT '0',
-  `state` tinyint(3) unsigned DEFAULT '1' COMMENT '删除时间',
+  `deleted_on` int(10) unsigned DEFAULT '0' COMMENT '删除时间',
+  `state` tinyint(3) unsigned DEFAULT '1' COMMENT '状态 0为禁用、1为启用',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文章管理';
 
@@ -74,3 +74,47 @@ CREATE TABLE `blog_claims` (
   PRIMARY KEY (`claim_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+
+-- ----------------------------
+-- comdb：Table structure for com_system
+-- ----------------------------
+DROP TABLE IF EXISTS `com_system`;
+CREATE TABLE `com_system` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`sys_name` varchar(50) NOT NULL DEFAULT '' COMMENT '系统名称',
+  `sys_password` varchar(50) NOT NULL DEFAULT '' COMMENT '系统密码',
+  `email` varchar(50) NOT NULL DEFAULT '' COMMENT '邮箱地址',
+  `state` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态 0为禁用、1为启用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- comdb_sysid：Table structure for sysid_comment
+-- ----------------------------
+DROP TABLE IF EXISTS `sysid_comment`;
+CREATE TABLE `sysid_comment` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`target_id` varchar(50) NOT NULL DEFAULT '' COMMENT '评论主题的id，可根据需要修改为article_id、course_id等等',
+  `com_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '被评论的评论id，主评论为0',
+  `user_id` varchar(50) NOT NULL DEFAULT '' COMMENT '发表评论的用户id',
+  `user_name` varchar(50) NOT NULL DEFAULT '' COMMENT '发表评论的用户名称（冗余设计）',
+  `avatar_url` varchar(255) NOT NULL DEFAULT '' COMMENT '发表评论的用户头像（冗余设计）',
+  `reply_name` varchar(50) NOT NULL DEFAULT '' COMMENT '回复人的名称',
+  `content` varchar(800) NOT NULL DEFAULT '' COMMENT '评论内容',
+  `created_on` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `support` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '点赞数（出于善良，不设计反对数）',
+  `satisfaction` int(10) NOT NULL DEFAULT '0' COMMENT '满意度（为0时，忽略满意度）',
+  `photo` varchar(800) NOT NULL DEFAULT '' COMMENT '图片地址',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- comdb_sysid：Table structure for sysid_comment
+-- ----------------------------
+DROP TABLE IF EXISTS `sysid_support`;
+CREATE TABLE `sysid_support` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `com_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '被点赞的评论id',
+  `user_id` varchar(50) NOT NULL DEFAULT '' COMMENT '点赞的用户ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
