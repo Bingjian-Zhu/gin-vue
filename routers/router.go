@@ -3,10 +3,11 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 
+	"gin-blog/middleware/cors"
 	"gin-blog/middleware/myjwt"
 	"gin-blog/pkg/setting"
-	"gin-blog/pkg/util"
 	v1 "gin-blog/routers/api/v1"
+	v2 "gin-blog/routers/api/v2"
 )
 
 func InitRouter() *gin.Engine {
@@ -17,7 +18,7 @@ func InitRouter() *gin.Engine {
 
 	r.Use(gin.Logger())
 
-	r.Use(util.Cors())
+	r.Use(cors.CorsHandler())
 
 	r.Use(gin.Recovery())
 
@@ -30,6 +31,14 @@ func InitRouter() *gin.Engine {
 	auth := r.Group("/auth")
 	// Refresh time can be longer than token timeout
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
+
+	api := r.Group("")
+	api.Use(authMiddleware.MiddlewareFunc())
+	{
+		api.GET("/user/info", v1.GetUserInfo)
+		api.POST("/user/logout", v1.Logout)
+		api.GET("/table/list", v2.GetArticles)
+	}
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use(authMiddleware.MiddlewareFunc())
@@ -54,6 +63,7 @@ func InitRouter() *gin.Engine {
 		//删除指定文章
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
 	}
+
 	var testMiddleware = myjwt.GinJWTMiddlewareInit(myjwt.TestAuthorizator)
 	apiv2 := r.Group("/api/v2")
 	apiv2.Use(testMiddleware.MiddlewareFunc())

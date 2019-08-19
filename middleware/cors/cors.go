@@ -1,4 +1,4 @@
-package util
+package cors
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Cors() gin.HandlerFunc {
+func CorsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method               //请求方法
 		origin := c.Request.Header.Get("Origin") //请求头部

@@ -25,10 +25,10 @@ CREATE TABLE `blog_article` (
   `cover_image_url` varchar(255) DEFAULT '' COMMENT '封面图片地址',
   `created_on` int(10) unsigned DEFAULT '0' COMMENT '新建时间',
   `created_by` varchar(100) DEFAULT '' COMMENT '创建人',
-  `modified_on` int(10) unsigned DEFAULT '0' COMMENT '修改时间',
+  `modified_on` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `modified_by` varchar(255) DEFAULT '' COMMENT '修改人',
   `deleted_on` int(10) unsigned DEFAULT '0' COMMENT '删除时间',
-  `state` tinyint(3) unsigned DEFAULT '1' COMMENT '状态 0为禁用、1为启用',
+  `state` tinyint(3) unsigned DEFAULT '1' COMMENT '状态 0为草稿、1为已发布、2为删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文章管理';
 
