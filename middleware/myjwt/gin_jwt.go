@@ -21,7 +21,7 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"),
-		Timeout:     time.Minute * 15,
+		Timeout:     time.Minute * 5,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
@@ -93,10 +93,11 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 	return
 }
 
+//角色为admin的用户可以访问
 func AdminAuthorizator(data interface{}, c *gin.Context) bool {
 	if v, ok := data.(*models.User); ok {
 		for _, itemClaim := range v.UserClaims {
-			if (itemClaim.Type == "role") && (itemClaim.Value == "admin" || itemClaim.Value == "test") {
+			if itemClaim.Type == "role" && itemClaim.Value == "admin" {
 				return true
 			}
 		}
@@ -105,12 +106,18 @@ func AdminAuthorizator(data interface{}, c *gin.Context) bool {
 	return false
 }
 
+//只有用户名为test能访问
 func TestAuthorizator(data interface{}, c *gin.Context) bool {
 	if v, ok := data.(*models.User); ok && v.UserName == "test" {
 		return true
 	}
 
 	return false
+}
+
+//
+func AllUserAuthorizator(data interface{}, c *gin.Context) bool {
+	return true
 }
 
 func NoRouteHandler(c *gin.Context) {

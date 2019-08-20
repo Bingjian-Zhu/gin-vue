@@ -23,7 +23,6 @@ func GetUserInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
-		// "data": map[string]string{"name": userName, "avatar": avatar},
 		"data": data,
 	})
 }

@@ -1,11 +1,12 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { login, logout, getInfo, refreshToken } from '@/api/user'
+import { getToken, setToken, removeToken, getTokenExpire, setTokenExpire, removeTokenExpire } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
   name: '',
-  avatar: ''
+  avatar: '',
+  tokenExpire: getTokenExpire()
 }
 
 const mutations = {
@@ -17,6 +18,9 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_TOKENEXPIRE: (state, token) => {
+    state.tokenExpire = token
   }
 }
 
@@ -28,7 +32,24 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {
         const data = response
         commit('SET_TOKEN', data.token)
+        commit('SET_TOKENEXPIRE', data.expire)
         setToken(data.token)
+        setTokenExpire(data.expire)
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  refreshToken({ commit }) {
+    return new Promise((resolve, reject) => {
+      refreshToken().then(response => {
+        const data = response
+        commit('SET_TOKEN', data.token)
+        commit('SET_TOKENEXPIRE', data.expire)
+        setToken(data.token)
+        setTokenExpire(data.expire)
         resolve()
       }).catch(error => {
         reject(error)
@@ -59,7 +80,9 @@ const actions = {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
         commit('SET_TOKEN', '')
+        commit('SET_TOKENEXPIRE', '')
         removeToken()
+        removeTokenExpire()
         resetRouter()
         resolve()
       }).catch(error => {
@@ -72,7 +95,9 @@ const actions = {
   resetToken({ commit }) {
     return new Promise(resolve => {
       commit('SET_TOKEN', '')
+      commit('SET_TOKENEXPIRE', '')
       removeToken()
+      removeTokenExpire()
       resolve()
     })
   }

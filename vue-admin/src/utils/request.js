@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import router from '@/router'
+import { getToken, getTokenExpire } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -45,7 +46,6 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-
     // if the custom code is not 200, it is judged as an error.
     if (res.code !== 200) {
       Message({
@@ -73,13 +73,34 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
-    return Promise.reject(error)
+    // if code is 401, refresh the token
+    if (error.response && error.response.status === 401) {
+      var curTime = new Date()
+      var tokenExpire = new Date(getTokenExpire())
+      var allowTime = new Date(curTime.setMinutes(curTime.getMinutes() + 30))
+      // if token expire time small than current time add 30 minute, allow to refresh the token
+      if (tokenExpire < allowTime) {
+        store.dispatch('user/refreshToken').then(() => {
+          location.reload()
+        })
+      } else {
+        store.dispatch('user/resetToken').then(() => {
+          location.reload()
+        })
+      }
+    }
+    else if (error.response && error.response.status === 403) {
+      router.push({ path: '/403' })
+    }
+    else {
+      console.log('err' + error) // for debug
+      Message({
+        message: error.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    }
   }
 )
 
