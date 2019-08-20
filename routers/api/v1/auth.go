@@ -6,9 +6,9 @@ import (
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 
-	"gin-blog/models"
-	"gin-blog/pkg/e"
-	"gin-blog/viewModels"
+	"gin-vue/models"
+	"gin-vue/pkg/e"
+	"gin-vue/viewModels"
 )
 
 func GetUserInfo(c *gin.Context) {

@@ -1,16 +1,16 @@
 package v2
 
 import (
-	"gin-blog/pkg/e"
-	"gin-blog/pkg/setting"
-	"gin-blog/pkg/util"
+	"gin-vue/pkg/e"
+	"gin-vue/pkg/setting"
+	"gin-vue/pkg/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
-	"gin-blog/models"
-	"gin-blog/viewModels"
-	"gin-blog/viewModels/emun"
+	"gin-vue/models"
+	"gin-vue/viewModels"
+	"gin-vue/viewModels/emun"
 )
 
 //获取多个文章

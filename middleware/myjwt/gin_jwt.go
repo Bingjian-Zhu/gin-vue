@@ -8,9 +8,9 @@ import (
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 
-	"gin-blog/models"
-	"gin-blog/pkg/e"
-	"gin-blog/pkg/setting"
+	"gin-vue/models"
+	"gin-vue/pkg/e"
+	"gin-vue/pkg/setting"
 )
 
 var identityKey = setting.IdentityKey

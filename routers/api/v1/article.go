@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"gin-blog/pkg/e"
-	"gin-blog/pkg/setting"
-	"gin-blog/pkg/util"
+	"gin-vue/pkg/e"
+	"gin-vue/pkg/setting"
+	"gin-vue/pkg/util"
 	"log"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 
-	"gin-blog/models"
+	"gin-vue/models"
 )
 
 //获取单个文章

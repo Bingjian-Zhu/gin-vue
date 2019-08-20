@@ -3,11 +3,11 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 
-	"gin-blog/middleware/cors"
-	"gin-blog/middleware/myjwt"
-	"gin-blog/pkg/setting"
-	v1 "gin-blog/routers/api/v1"
-	v2 "gin-blog/routers/api/v2"
+	"gin-vue/middleware/cors"
+	"gin-vue/middleware/myjwt"
+	"gin-vue/pkg/setting"
+	v1 "gin-vue/routers/api/v1"
+	v2 "gin-vue/routers/api/v2"
 )
 
 func InitRouter() *gin.Engine {

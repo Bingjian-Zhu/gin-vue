@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"gin-blog/models"
-	"gin-blog/pkg/e"
-	"gin-blog/pkg/setting"
-	"gin-blog/pkg/util"
+	"gin-vue/models"
+	"gin-vue/pkg/e"
+	"gin-vue/pkg/setting"
+	"gin-vue/pkg/util"
 	"net/http"
 
 	"github.com/Unknwon/com"
