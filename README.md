@@ -14,3 +14,7 @@
 3.在gin-vue目录下运行`go run main.go`
 
 ### vue运行方式请看文件夹/vue-admin中的README.md
+
+喜欢请star
+
+联系方式（QQ）：939496716
