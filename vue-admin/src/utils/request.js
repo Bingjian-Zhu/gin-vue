@@ -88,11 +88,9 @@ service.interceptors.response.use(
           location.reload()
         })
       }
-    }
-    else if (error.response && error.response.status === 403) {
+    } else if (error.response && error.response.status === 403) {
       router.push({ path: '/403' })
-    }
-    else {
+    } else {
       console.log('err' + error) // for debug
       Message({
         message: error.message,
