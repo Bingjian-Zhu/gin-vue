@@ -26,8 +26,10 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.User); ok {
+				//get claims from username
 				v.UserClaims = models.GetUserClaims(v.UserName)
 				jsonClaim, _ := json.Marshal(v.UserClaims)
+				//maps the claims in the JWT
 				return jwt.MapClaims{
 					"userName":   v.UserName,
 					"userClaims": string(jsonClaim),
@@ -37,15 +39,18 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
+			//extracts identity from claims
 			jsonClaim := claims["userClaims"].(string)
 			var userClaims []models.Claims
 			json.Unmarshal([]byte(jsonClaim), &userClaims)
+			//Set the identity
 			return &models.User{
 				UserName:   claims["userName"].(string),
 				UserClaims: userClaims,
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
+			//handles the login logic. On success LoginResponse is called, on failure Unauthorized is called
 			var loginVals models.Auth
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
@@ -61,7 +66,9 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 
 			return nil, jwt.ErrFailedAuthentication
 		},
+		//receives identity and handles authorization logic
 		Authorizator: jwtAuthorizator,
+		//handles unauthorized logic
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{
 				"code":    code,
@@ -93,7 +100,7 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 	return
 }
 
-//角色为admin的用户可以访问
+//role is admin can access
 func AdminAuthorizator(data interface{}, c *gin.Context) bool {
 	if v, ok := data.(*models.User); ok {
 		for _, itemClaim := range v.UserClaims {
@@ -106,7 +113,7 @@ func AdminAuthorizator(data interface{}, c *gin.Context) bool {
 	return false
 }
 
-//只有用户名为test能访问
+//username is test can access
 func TestAuthorizator(data interface{}, c *gin.Context) bool {
 	if v, ok := data.(*models.User); ok && v.UserName == "test" {
 		return true
@@ -120,9 +127,8 @@ func AllUserAuthorizator(data interface{}, c *gin.Context) bool {
 	return true
 }
 
+//404 handler
 func NoRouteHandler(c *gin.Context) {
-	//claims := jwt.ExtractClaims(c)
-	//log.Printf("NoRoute claims: %#v\n", claims)
 	code := e.PAGE_NOT_FOUND
 	c.JSON(404, gin.H{"code": code, "message": e.GetMsg(code)})
 }
