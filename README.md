@@ -21,6 +21,4 @@
 
 喜欢请star
 
-联系方式（QQ）：939496716
-
 推荐一个项目（[gin-vue-admin](https://github.com/Bingjian-Zhu/gin-vue-admin)），它是基于这个项目的基础上改进的，用依赖注入的方式对项目进行解耦
