@@ -5,6 +5,7 @@ import (
 
 	"gin-vue/middleware/cors"
 	"gin-vue/middleware/myjwt"
+	"gin-vue/pkg/e"
 	"gin-vue/pkg/setting"
 	v1 "gin-vue/routers/api/v1"
 	v2 "gin-vue/routers/api/v2"
@@ -16,9 +17,13 @@ func InitRouter() *gin.Engine {
 	r.Use(cors.CorsHandler())
 	r.Use(gin.Recovery())
 	gin.SetMode(setting.RunMode)
-	var authMiddleware = myjwt.GinJWTMiddlewareInit(myjwt.AllUserAuthorizator)
+	var authMiddleware = myjwt.GinJWTMiddlewareInit(&myjwt.AllUserAuthorizator{})
 	r.POST("/login", authMiddleware.LoginHandler)
-	r.NoRoute(authMiddleware.MiddlewareFunc(), myjwt.NoRouteHandler)
+	//404 handler
+	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
+		code := e.PAGE_NOT_FOUND
+		c.JSON(404, gin.H{"code": code, "message": e.GetMsg(code)})
+	})
 	auth := r.Group("/auth")
 	{
 		// Refresh time can be longer than token timeout
@@ -32,7 +37,7 @@ func InitRouter() *gin.Engine {
 		api.POST("/logout", v1.Logout)
 	}
 
-	var adminMiddleware = myjwt.GinJWTMiddlewareInit(myjwt.AdminAuthorizator)
+	var adminMiddleware = myjwt.GinJWTMiddlewareInit(&myjwt.AdminAuthorizator{})
 	apiv1 := r.Group("/api/v1")
 	//使用AdminAuthorizator中间件，只有admin权限的用户才能获取到接口
 	apiv1.Use(adminMiddleware.MiddlewareFunc())
@@ -60,7 +65,7 @@ func InitRouter() *gin.Engine {
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
 	}
 
-	var testMiddleware = myjwt.GinJWTMiddlewareInit(myjwt.TestAuthorizator)
+	var testMiddleware = myjwt.GinJWTMiddlewareInit(&myjwt.TestAuthorizator{})
 	apiv2 := r.Group("/api/v2")
 	apiv2.Use(testMiddleware.MiddlewareFunc())
 	{

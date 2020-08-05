@@ -9,15 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"gin-vue/models"
-	"gin-vue/pkg/e"
 	"gin-vue/pkg/setting"
 )
 
 var identityKey = setting.IdentityKey
 
-type JwtAuthorizator func(data interface{}, c *gin.Context) bool
-
-func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.GinJWTMiddleware) {
+func GinJWTMiddlewareInit(jwtAuthorizator IAuthorizator) (authMiddleware *jwt.GinJWTMiddleware) {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"),
@@ -67,7 +64,7 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 			return nil, jwt.ErrFailedAuthentication
 		},
 		//receives identity and handles authorization logic
-		Authorizator: jwtAuthorizator,
+		Authorizator: jwtAuthorizator.HandleAuthorizator,
 		//handles unauthorized logic
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{
@@ -98,37 +95,4 @@ func GinJWTMiddlewareInit(jwtAuthorizator JwtAuthorizator) (authMiddleware *jwt.
 		log.Fatal("JWT Error:" + err.Error())
 	}
 	return
-}
-
-//role is admin can access
-func AdminAuthorizator(data interface{}, c *gin.Context) bool {
-	if v, ok := data.(*models.User); ok {
-		for _, itemClaim := range v.UserClaims {
-			if itemClaim.Type == "role" && itemClaim.Value == "admin" {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-//username is test can access
-func TestAuthorizator(data interface{}, c *gin.Context) bool {
-	if v, ok := data.(*models.User); ok && v.UserName == "test" {
-		return true
-	}
-
-	return false
-}
-
-//
-func AllUserAuthorizator(data interface{}, c *gin.Context) bool {
-	return true
-}
-
-//404 handler
-func NoRouteHandler(c *gin.Context) {
-	code := e.PAGE_NOT_FOUND
-	c.JSON(404, gin.H{"code": code, "message": e.GetMsg(code)})
 }
